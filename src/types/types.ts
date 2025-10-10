@@ -1,0 +1,1 @@
+export type PageType = "main" | "login" | "register" | "discussions" | "proposals" | "completed" | "discussionDetail";

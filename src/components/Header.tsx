@@ -1,13 +1,14 @@
 import { Search, Menu, User, LogOut } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
+import { PageType } from '../types/types';
 
 interface HeaderProps {
   isLoggedIn?: boolean;
   onLoginClick?: () => void;
   onLogoutClick?: () => void;
-  onNavigate?: (page: string) => void;
-  currentPage?: string;
+  onNavigate?: (page: PageType) => void;
+  currentPage?: PageType;
 }
 
 export function Header({ 
