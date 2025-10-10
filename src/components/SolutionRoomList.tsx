@@ -7,7 +7,7 @@ import { SolutionRoomCard } from "./SolutionRoomCard";
 import { Badge } from "./ui/badge";
 
 interface SolutionRoomListProps {
-  onRoomClick?: () => void;
+  onRoomClick?: (id: string) => void;
 }
 
 export function SolutionRoomList({ onRoomClick }: SolutionRoomListProps = {}) {
@@ -17,6 +17,7 @@ export function SolutionRoomList({ onRoomClick }: SolutionRoomListProps = {}) {
 
   const sampleRooms = [
     {
+      id: "room-1",
       title: "부천역 BJ 방송으로 인한 소음공해 및 환경 개선 방안",
       description: "부천역 일대에서 개인방송(BJ) 촬영으로 인한 소음 문제와 쓰레기 투기 문제가 심각해지고 있습니다. 상인들과 주민들의 고충이 커지고 있어 근본적인 해결책이 필요한 상황입니다.",
       location: "부천시 소사구",
@@ -28,6 +29,7 @@ export function SolutionRoomList({ onRoomClick }: SolutionRoomListProps = {}) {
       priority: "높음" as const
     },
     {
+      id: "room-2", // id 추가
       title: "어린이 놀이터 안전시설 개선 및 관리 방안",
       description: "우리 동네 어린이 놀이터의 노후된 시설물과 안전 문제를 개선하기 위한 구체적인 방안을 논의하고 있습니다. 부모님들의 적극적인 참여를 바랍니다.",
       location: "성남시 분당구",
@@ -39,6 +41,7 @@ export function SolutionRoomList({ onRoomClick }: SolutionRoomListProps = {}) {
       priority: "높음" as const
     },
     {
+      id: "room-3", // id 추가
       title: "도시농업 활성화를 위한 옥상정원 조성 프로젝트",
       description: "도심 속 녹지공간 확보와 시민들의 도시농업 참여를 위한 공공건물 옥상정원 조성 방안을 함께 만들어보려고 합니다.",
       location: "수원시 영통구",
@@ -50,6 +53,7 @@ export function SolutionRoomList({ onRoomClick }: SolutionRoomListProps = {}) {
       priority: "보통" as const
     },
     {
+      id: "room-4", // id 추가
       title: "대중교통 접근성 개선을 위한 버스 노선 신설 제안",
       description: "신도시 지역의 교통 불편을 해소하기 위한 새로운 버스 노선 계획이 주민들의 의견을 바탕으로 완성되어 제출되었습니다.",
       location: "화성시 동탄",
@@ -61,6 +65,7 @@ export function SolutionRoomList({ onRoomClick }: SolutionRoomListProps = {}) {
       priority: "높음" as const
     },
     {
+      id: "room-5", // id 추가
       title: "전통시장 활성화를 위한 디지털 마케팅 플랫폼 구축",
       description: "지역 전통시장의 경쟁력 강화와 젊은 고객층 유치를 위한 온라인 플랫폼 구축 방안을 논의하고 있습니다.",
       location: "안양시 만안구",
@@ -72,6 +77,7 @@ export function SolutionRoomList({ onRoomClick }: SolutionRoomListProps = {}) {
       priority: "보통" as const
     },
     {
+      id: "room-6", // id 추가
       title: "반려동물 동반 가능한 공원 조성 및 시설 개선",
       description: "반려동물과 함께 이용할 수 있는 공원 시설과 관련 편의시설 설치에 대한 구체적인 계획을 세우고 있습니다.",
       location: "고양시 일산서구",
@@ -170,7 +176,7 @@ export function SolutionRoomList({ onRoomClick }: SolutionRoomListProps = {}) {
       {/* Room cards */}
       <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-1">
         {filteredRooms.map((room, index) => (
-          <SolutionRoomCard key={index} {...room} onClick={onRoomClick} />
+          <SolutionRoomCard key={index} {...room} onClick={() => onRoomClick?.(room.id)} />
         ))}
       </div>
 

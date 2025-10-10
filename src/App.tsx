@@ -10,13 +10,15 @@ import { SolutionDiscussionPage } from "./components/SolutionDiscussionPage";
 import { OngoingProposalsPage } from "./components/OngoingProposalsPage";
 import { CompletedProjectsPage } from "./components/CompletedProjectsPage";
 import { DiscussionRoomDetail } from "./components/DiscussionRoomDetail";
-
-type PageType = "main" | "login" | "register" | "discussions" | "proposals" | "completed" | "discussionDetail";
+import { PageType } from "./types/types.ts";
+// import { Button } from '@krds-ui/core'
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState<PageType>("main");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [selectedDiscussionId, setSelectedDiscussionId] = useState<string | null>(null);
+
+  console.log(selectedDiscussionId); // 임시 (추후 삭제 예정)
 
   const handleLogin = () => {
     setIsLoggedIn(true);
