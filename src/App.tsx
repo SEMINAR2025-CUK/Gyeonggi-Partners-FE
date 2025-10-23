@@ -10,7 +10,8 @@ import { SolutionDiscussionPage } from "./components/SolutionDiscussionPage";
 import { OngoingProposalsPage } from "./components/OngoingProposalsPage";
 import { CompletedProjectsPage } from "./components/CompletedProjectsPage";
 import { DiscussionRoomDetail } from "./components/DiscussionRoomDetail";
-import { PageType } from "./types/types.ts";
+import { PageType } from "./types/types.ts"
+import SignupForm from "./components/SignUpForm.tsx"; //회원가입 엔드포인트 확인용
 // import { Button } from '@krds-ui/core'
 
 export default function App() {
@@ -141,6 +142,7 @@ export default function App() {
       />
       <main>
         <MainBanner />
+        <SignupForm/> 
         <SolutionRoomList onRoomClick={handleDiscussionClick} />
       </main>
       <Footer />
