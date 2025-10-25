@@ -1,10 +1,12 @@
 import { useEffect } from "react";
+import { useNavigate } from "react-router-dom"; // 로그인 버튼에 로그인 페이지 연결
 
 export function Header() {
   // ✅ KRDS PC GNB 동작을 담당하는 순수 DOM 제어 객체
   // - init()에서 DOM을 훑어 기본 속성/ID/이벤트를 세팅
   // - toggleMainMenu / toggleSubMenu가 2/3뎁스 토글 담당
   // - backdrop/스크롤잠금/키보드 내비게이션 등 보조 기능 포함
+  const navigate = useNavigate();
   const krds_mainMenuPC = {
     backdrop: undefined as HTMLDivElement | undefined,
 
@@ -24,7 +26,8 @@ export function Header() {
         this.createBackdrop();
 
       // 1뎁스/2뎁스 트리거 수집 및 초기 속성 세팅
-      const mainTriggers = gnbMenu.querySelectorAll<HTMLButtonElement>(".gnb-main-trigger");
+      const mainTriggers =
+        gnbMenu.querySelectorAll<HTMLButtonElement>(".gnb-main-trigger");
       const subTriggers = gnbMenu.querySelectorAll<HTMLButtonElement>(
         ".gnb-sub-trigger:not(.is-link)"
       );
@@ -53,12 +56,18 @@ export function Header() {
         toggleWrap.setAttribute("id", uniqueIdx);
 
         // 2뎁스 리스트(.gnb-main-list) 내부에 3뎁스가 있는 경우 초기 활성 처리
-        const mainList = toggleWrap.querySelector(".gnb-main-list") as HTMLElement | null;
+        const mainList = toggleWrap.querySelector(
+          ".gnb-main-list"
+        ) as HTMLElement | null;
         if (mainList?.getAttribute("data-has-submenu") === "true") {
-          const subTriggers = mainList.querySelectorAll<HTMLButtonElement>(".gnb-sub-trigger");
+          const subTriggers =
+            mainList.querySelectorAll<HTMLButtonElement>(".gnb-sub-trigger");
           subTriggers.forEach((subTrigger) => this.setupSubTrigger(subTrigger));
           // 첫 3뎁스 트리거를 기본 활성화(링크형은 제외)
-          if (subTriggers.length > 0 && !subTriggers[0].classList.contains("is-link")) {
+          if (
+            subTriggers.length > 0 &&
+            !subTriggers[0].classList.contains("is-link")
+          ) {
             subTriggers[0].classList.add("active");
             subTriggers[0].setAttribute("aria-expanded", "true");
             subTriggers[0].nextElementSibling?.classList.add("active"); // 해당 .gnb-sub-list
@@ -97,7 +106,9 @@ export function Header() {
           this.toggleBackdrop(true);
           this.toggleScrollbar(true);
           this.adjustSubMenuHeight(
-            mainTrigger.nextElementSibling.querySelector(".gnb-main-list") as HTMLElement | null
+            mainTrigger.nextElementSibling.querySelector(
+              ".gnb-main-list"
+            ) as HTMLElement | null
           );
         }
       } else {
@@ -110,7 +121,9 @@ export function Header() {
       // 같은 2뎁스 그룹 내 다른 3뎁스 활성 해제
       const containerUl = subTrigger.closest("ul");
       const otherSubTriggers =
-        containerUl?.querySelectorAll<HTMLButtonElement>(".gnb-sub-trigger:not(.is-link)") ?? [];
+        containerUl?.querySelectorAll<HTMLButtonElement>(
+          ".gnb-sub-trigger:not(.is-link)"
+        ) ?? [];
       otherSubTriggers.forEach((trigger) => {
         trigger.classList.remove("active");
         trigger.setAttribute("aria-expanded", "false");
@@ -144,7 +157,9 @@ export function Header() {
 
     adjustSubMenuHeight(target: HTMLElement | null) {
       // 현재 활성된 .gnb-sub-list 높이를 읽어 컨테이너 min-height 지정
-      const activeSubList = target?.querySelector(".gnb-sub-list.active") as HTMLElement | null;
+      const activeSubList = target?.querySelector(
+        ".gnb-sub-list.active"
+      ) as HTMLElement | null;
       const height = activeSubList?.scrollHeight ?? 0;
       if (target) target.style.minHeight = `${height}px`;
     },
@@ -166,7 +181,9 @@ export function Header() {
           mainTrigger.setAttribute("aria-expanded", "false");
         });
       document
-        .querySelectorAll<HTMLElement>(".krds-main-menu:not(.sample) .gnb-toggle-wrap")
+        .querySelectorAll<HTMLElement>(
+          ".krds-main-menu:not(.sample) .gnb-toggle-wrap"
+        )
         .forEach((toggleWrap) => {
           toggleWrap.classList.remove("is-open");
         });
@@ -199,12 +216,16 @@ export function Header() {
 
       // 1뎁스: 클릭 시 2뎁스 열고 닫기
       mainTriggers.forEach((mainTrigger) => {
-        mainTrigger.addEventListener("click", () => this.toggleMainMenu(mainTrigger));
+        mainTrigger.addEventListener("click", () =>
+          this.toggleMainMenu(mainTrigger)
+        );
       });
 
       // 2뎁스(=3뎁스 트리거): 클릭 시 3뎁스 영역 전환
       subTriggers.forEach((subTrigger) => {
-        subTrigger.addEventListener("click", () => this.toggleSubMenu(subTrigger));
+        subTrigger.addEventListener("click", () =>
+          this.toggleSubMenu(subTrigger)
+        );
       });
     },
 
@@ -212,10 +233,20 @@ export function Header() {
       // 1뎁스 사이 포커스 이동(접근성 향상)
       const focusMenuItem = (element: HTMLElement | null) => element?.focus();
 
-      const findFocusableElement = (element: HTMLElement, direction: "next" | "prev") => {
-        const sibling = direction === "next" ? "nextElementSibling" : "previousElementSibling";
-        const liSibling = element.closest("li")?.[sibling] as HTMLElement | null;
-        return liSibling ? (liSibling.querySelector("[data-trigger]") as HTMLElement | null) : null;
+      const findFocusableElement = (
+        element: HTMLElement,
+        direction: "next" | "prev"
+      ) => {
+        const sibling =
+          direction === "next"
+            ? "nextElementSibling"
+            : "previousElementSibling";
+        const liSibling = element.closest("li")?.[
+          sibling
+        ] as HTMLElement | null;
+        return liSibling
+          ? (liSibling.querySelector("[data-trigger]") as HTMLElement | null)
+          : null;
       };
 
       document.addEventListener("keydown", (event) => {
@@ -285,7 +316,12 @@ export function Header() {
                 <ul className="utility-list">
                   {/* 외부 링크 버튼 예시 */}
                   <li>
-                    <a href="#" className="krds-btn small text" target="_blank" title="새 창 열기">
+                    <a
+                      href="#"
+                      className="krds-btn small text"
+                      target="_blank"
+                      title="새 창 열기"
+                    >
                       메뉴명 <i className="svg-icon ico-go"></i>
                     </a>
                   </li>
@@ -293,14 +329,25 @@ export function Header() {
                   {/* 드롭다운 예시 1 */}
                   <li>
                     <div className="krds-drop-wrap">
-                      <button type="button" className="krds-btn small text drop-btn">
+                      <button
+                        type="button"
+                        className="krds-btn small text drop-btn"
+                      >
                         메뉴명 <i className="svg-icon ico-toggle"></i>
                       </button>
                       <div className="drop-menu">
                         <div className="drop-in">
                           <ul className="drop-list">
-                            <li><a href="#" className="item-link">메뉴명</a></li>
-                            <li><a href="#" className="item-link">메뉴명</a></li>
+                            <li>
+                              <a href="#" className="item-link">
+                                메뉴명
+                              </a>
+                            </li>
+                            <li>
+                              <a href="#" className="item-link">
+                                메뉴명
+                              </a>
+                            </li>
                           </ul>
                         </div>
                       </div>
@@ -310,20 +357,49 @@ export function Header() {
                   {/* 드롭다운 예시 2: 글자 크기 조절 등 */}
                   <li>
                     <div className="krds-drop-wrap krds-resize">
-                      <button type="button" className="krds-btn small text drop-btn">
+                      <button
+                        type="button"
+                        className="krds-btn small text drop-btn"
+                      >
                         메뉴명 <i className="svg-icon ico-toggle"></i>
                       </button>
                       <div className="drop-menu">
                         <div className="drop-in">
                           <ul className="drop-list">
-                            <li><button type="button" className="item-link sm">메뉴명</button></li>
-                            <li><button type="button" className="item-link md active">메뉴명</button></li>
-                            <li><button type="button" className="item-link lg">메뉴명</button></li>
-                            <li><button type="button" className="item-link xlg">메뉴명</button></li>
-                            <li><button type="button" className="item-link xxlg">메뉴명</button></li>
+                            <li>
+                              <button type="button" className="item-link sm">
+                                메뉴명
+                              </button>
+                            </li>
+                            <li>
+                              <button
+                                type="button"
+                                className="item-link md active"
+                              >
+                                메뉴명
+                              </button>
+                            </li>
+                            <li>
+                              <button type="button" className="item-link lg">
+                                메뉴명
+                              </button>
+                            </li>
+                            <li>
+                              <button type="button" className="item-link xlg">
+                                메뉴명
+                              </button>
+                            </li>
+                            <li>
+                              <button type="button" className="item-link xxlg">
+                                메뉴명
+                              </button>
+                            </li>
                           </ul>
                           <div className="drop-bottom">
-                            <button type="button" className="krds-btn medium text">
+                            <button
+                              type="button"
+                              className="krds-btn medium text"
+                            >
                               <i className="svg-icon ico-reset"></i> 초기화
                             </button>
                           </div>
@@ -335,15 +411,45 @@ export function Header() {
                   {/* 드롭다운 예시 3: 외부 링크 목록 */}
                   <li>
                     <div className="krds-drop-wrap">
-                      <button type="button" className="krds-btn small text drop-btn">
+                      <button
+                        type="button"
+                        className="krds-btn small text drop-btn"
+                      >
                         메뉴명 <i className="svg-icon ico-toggle"></i>
                       </button>
                       <div className="drop-menu">
                         <div className="drop-in">
                           <ul className="drop-list">
-                            <li><a href="#" className="item-link ico-go" target="_blank" title="새 창 열림">메뉴명</a></li>
-                            <li><a href="#" className="item-link ico-go" target="_blank" title="새 창 열림">메뉴명</a></li>
-                            <li><a href="#" className="item-link ico-go" target="_blank" title="새 창 열림">메뉴명</a></li>
+                            <li>
+                              <a
+                                href="#"
+                                className="item-link ico-go"
+                                target="_blank"
+                                title="새 창 열림"
+                              >
+                                메뉴명
+                              </a>
+                            </li>
+                            <li>
+                              <a
+                                href="#"
+                                className="item-link ico-go"
+                                target="_blank"
+                                title="새 창 열림"
+                              >
+                                메뉴명
+                              </a>
+                            </li>
+                            <li>
+                              <a
+                                href="#"
+                                className="item-link ico-go"
+                                target="_blank"
+                                title="새 창 열림"
+                              >
+                                메뉴명
+                              </a>
+                            </li>
                           </ul>
                         </div>
                       </div>
@@ -362,12 +468,34 @@ export function Header() {
 
                 <div className="header-actions">
                   {/* 검색/로그인/회원가입 및 마이 메뉴 드롭다운 */}
-                  <button type="button" className="btn-navi sch" title="통합검색 레이어">통합검색</button>
-                  <a href="#" className="btn-navi login">로그인</a>
-                  <button type="button" className="btn-navi join">회원가입</button>
+                  <button
+                    type="button"
+                    className="btn-navi sch"
+                    title="통합검색 레이어"
+                  >
+                    통합검색
+                  </button>
+
+                  <button
+                    type="button"
+                    className="btn-navi login"
+                    onClick={() => navigate("/login")} // ← 로그인 페이지로 이동
+                  >
+                    로그인
+                  </button>
+
+                  <button
+                    type="button"
+                    className="btn-navi join"
+                    onClick={() => navigate("/signup")} // 회원가입 페이지로 이동
+                  >
+                    회원가입
+                  </button>
 
                   <div className="krds-drop-wrap my-drop">
-                    <button type="button" className="btn-navi my drop-btn">나의 GOV</button>
+                    <button type="button" className="btn-navi my drop-btn">
+                      나의 GOV
+                    </button>
                     <div className="drop-menu">
                       <div className="drop-in">
                         <div className="drop-top">
@@ -376,18 +504,42 @@ export function Header() {
                             <dt>로그아웃까지 남은 시간</dt>
                             <dd>
                               <span className="time">12:00</span>
-                              <button type="button" className="krds-btn medium text">시간 연장</button>
+                              <button
+                                type="button"
+                                className="krds-btn medium text"
+                              >
+                                시간 연장
+                              </button>
                             </dd>
                           </dl>
                         </div>
                         <ul className="drop-list">
-                          <li><a href="#" className="item-link">나의 GOV 홈</a></li>
-                          <li><a href="#" className="item-link">나의 신청내역</a></li>
-                          <li><a href="#" className="item-link">나의 생활정보</a></li>
-                          <li><a href="#" className="item-link">나의 정보관리</a></li>
+                          <li>
+                            <a href="#" className="item-link">
+                              나의 GOV 홈
+                            </a>
+                          </li>
+                          <li>
+                            <a href="#" className="item-link">
+                              나의 신청내역
+                            </a>
+                          </li>
+                          <li>
+                            <a href="#" className="item-link">
+                              나의 생활정보
+                            </a>
+                          </li>
+                          <li>
+                            <a href="#" className="item-link">
+                              나의 정보관리
+                            </a>
+                          </li>
                         </ul>
                         <div className="drop-bottom">
-                          <button type="button" className="krds-btn medium text">
+                          <button
+                            type="button"
+                            className="krds-btn medium text"
+                          >
                             <i className="svg-icon ico-logout"></i> 로그아웃
                           </button>
                         </div>
@@ -396,7 +548,11 @@ export function Header() {
                   </div>
 
                   {/* 모바일 전체메뉴 열기 버튼(모바일 네비 토글용) */}
-                  <button type="button" className="btn-navi all" aria-controls="mobile-nav">
+                  <button
+                    type="button"
+                    className="btn-navi all"
+                    aria-controls="mobile-nav"
+                  >
                     전체메뉴
                   </button>
                 </div>
@@ -410,7 +566,11 @@ export function Header() {
               <ul className="gnb-menu" /* aria-label은 init()에서 지정 */>
                 <li>
                   {/* 1뎁스 트리거: 클릭 시 .gnb-toggle-wrap 열기 */}
-                  <button type="button" className="gnb-main-trigger" data-trigger="gnb">
+                  <button
+                    type="button"
+                    className="gnb-main-trigger"
+                    data-trigger="gnb"
+                  >
                     1Depth
                   </button>
 
@@ -421,7 +581,11 @@ export function Header() {
                       <ul>
                         <li>
                           {/* 3뎁스 트리거(버튼형) */}
-                          <button type="button" className="gnb-sub-trigger" data-trigger="gnb">
+                          <button
+                            type="button"
+                            className="gnb-sub-trigger"
+                            data-trigger="gnb"
+                          >
                             2Depth
                           </button>
 
@@ -430,29 +594,46 @@ export function Header() {
                             <div className="gnb-sub-content">
                               <h2 className="sub-title">
                                 2Depth title
-                                <a href="#" className="krds-btn link basic small">
+                                <a
+                                  href="#"
+                                  className="krds-btn link basic small"
+                                >
                                   <span className="underline">바로가기</span>
                                   <i className="svg-icon ico-angle right"></i>
                                 </a>
                               </h2>
                               <ul>
-                                <li><a href="#">Last depth</a></li>
-                                <li><button type="button">Last depth</button></li>
+                                <li>
+                                  <a href="#">Last depth</a>
+                                </li>
+                                <li>
+                                  <button type="button">Last depth</button>
+                                </li>
                               </ul>
                             </div>
 
                             {/* 3뎁스 우측 배너(보조영역) */}
                             <div className="gnb-sub-banner">
-                              <span className="krds-badge bg-secondary">신규 서비스</span>
-                              <button type="button" className="krds-btn medium text">
-                                메뉴명 <i className="svg-icon ico-angle right"></i>
+                              <span className="krds-badge bg-secondary">
+                                신규 서비스
+                              </span>
+                              <button
+                                type="button"
+                                className="krds-btn medium text"
+                              >
+                                메뉴명{" "}
+                                <i className="svg-icon ico-angle right"></i>
                               </button>
                             </div>
                           </div>
                         </li>
 
                         <li>
-                          <button type="button" className="gnb-sub-trigger" data-trigger="gnb">
+                          <button
+                            type="button"
+                            className="gnb-sub-trigger"
+                            data-trigger="gnb"
+                          >
                             2Depth
                           </button>
                           {/* between 클래스: 배너 우측 배치 레이아웃 */}
@@ -460,21 +641,36 @@ export function Header() {
                             <div className="gnb-sub-content">
                               <h2 className="sub-title">
                                 2Depth title
-                                <a href="#" className="krds-btn link basic small">
+                                <a
+                                  href="#"
+                                  className="krds-btn link basic small"
+                                >
                                   <span className="underline">바로가기</span>
                                   <i className="svg-icon ico-angle right"></i>
                                 </a>
                               </h2>
                               <ul>
-                                <li><a href="#">Last depth</a></li>
-                                <li><button type="button">Last depth</button></li>
-                                <li><button type="button">Last depth</button></li>
+                                <li>
+                                  <a href="#">Last depth</a>
+                                </li>
+                                <li>
+                                  <button type="button">Last depth</button>
+                                </li>
+                                <li>
+                                  <button type="button">Last depth</button>
+                                </li>
                               </ul>
                             </div>
                             <div className="gnb-sub-banner">
-                              <span className="krds-badge bg-secondary">신규 서비스</span>
-                              <button type="button" className="krds-btn medium text">
-                                메뉴명 <i className="svg-icon ico-angle right"></i>
+                              <span className="krds-badge bg-secondary">
+                                신규 서비스
+                              </span>
+                              <button
+                                type="button"
+                                className="krds-btn medium text"
+                              >
+                                메뉴명{" "}
+                                <i className="svg-icon ico-angle right"></i>
                               </button>
                             </div>
                           </div>
@@ -482,7 +678,11 @@ export function Header() {
 
                         {/* 링크형 3뎁스: .is-link → 토글 대상 아님 */}
                         <li>
-                          <a href="#" className="gnb-sub-trigger is-link" data-trigger="gnb">
+                          <a
+                            href="#"
+                            className="gnb-sub-trigger is-link"
+                            data-trigger="gnb"
+                          >
                             2Depth
                           </a>
                         </li>
@@ -504,73 +704,117 @@ export function Header() {
 
                 {/* 동일 패턴의 또 다른 1뎁스 그룹 */}
                 <li>
-                  <button type="button" className="gnb-main-trigger" data-trigger="gnb">
+                  <button
+                    type="button"
+                    className="gnb-main-trigger"
+                    data-trigger="gnb"
+                  >
                     1Depth
                   </button>
                   <div className="gnb-toggle-wrap">
                     <div className="gnb-main-list" data-has-submenu="true">
                       <ul>
                         <li>
-                          <button type="button" className="gnb-sub-trigger" data-trigger="gnb">
+                          <button
+                            type="button"
+                            className="gnb-sub-trigger"
+                            data-trigger="gnb"
+                          >
                             2Depth
                           </button>
                           <div className="gnb-sub-list">
                             <div className="gnb-sub-content">
-                              <h2 className="sub-title"><span>2Depth title</span></h2>
+                              <h2 className="sub-title">
+                                <span>2Depth title</span>
+                              </h2>
                               {/* 설명형 항목(type-description) */}
                               <ul className="type-description">
                                 <li>
                                   <h3 className="tit">
-                                    <a href="#" target="_blank" title="새 창 열림">
-                                      3Depth title <i className="svg-icon ico-go"></i>
+                                    <a
+                                      href="#"
+                                      target="_blank"
+                                      title="새 창 열림"
+                                    >
+                                      3Depth title{" "}
+                                      <i className="svg-icon ico-go"></i>
                                     </a>
                                   </h3>
                                   <p className="txt">
-                                    메뉴명과 메뉴에 관한 간략한 설명이 표시되는 스타일입니다.
+                                    메뉴명과 메뉴에 관한 간략한 설명이 표시되는
+                                    스타일입니다.
                                   </p>
                                 </li>
                               </ul>
                             </div>
                             <div className="gnb-sub-banner">
-                              <span className="krds-badge bg-secondary">신규 서비스</span>
-                              <button type="button" className="krds-btn medium text">
-                                메뉴명 <i className="svg-icon ico-angle right"></i>
+                              <span className="krds-badge bg-secondary">
+                                신규 서비스
+                              </span>
+                              <button
+                                type="button"
+                                className="krds-btn medium text"
+                              >
+                                메뉴명{" "}
+                                <i className="svg-icon ico-angle right"></i>
                               </button>
                             </div>
                           </div>
                         </li>
 
                         <li>
-                          <button type="button" className="gnb-sub-trigger" data-trigger="gnb">
+                          <button
+                            type="button"
+                            className="gnb-sub-trigger"
+                            data-trigger="gnb"
+                          >
                             2Depth
                           </button>
                           <div className="gnb-sub-list between">
                             <div className="gnb-sub-content">
-                              <h2 className="sub-title"><span>2Depth title</span></h2>
+                              <h2 className="sub-title">
+                                <span>2Depth title</span>
+                              </h2>
                               <ul className="type-description">
                                 <li>
                                   <h3 className="tit">
-                                    <a href="#" target="_blank" title="새 창 열림">
-                                      3Depth title <i className="svg-icon ico-go"></i>
+                                    <a
+                                      href="#"
+                                      target="_blank"
+                                      title="새 창 열림"
+                                    >
+                                      3Depth title{" "}
+                                      <i className="svg-icon ico-go"></i>
                                     </a>
                                   </h3>
                                   <p className="txt">
-                                    메뉴명과 메뉴에 관한 간략한 설명이 표시되는 스타일입니다.
+                                    메뉴명과 메뉴에 관한 간략한 설명이 표시되는
+                                    스타일입니다.
                                   </p>
                                 </li>
                               </ul>
                             </div>
                             <div className="gnb-sub-banner">
-                              <span className="krds-badge bg-secondary">신규 서비스</span>
-                              <button type="button" className="krds-btn medium text">
-                                메뉴명 <i className="svg-icon ico-angle right"></i>
+                              <span className="krds-badge bg-secondary">
+                                신규 서비스
+                              </span>
+                              <button
+                                type="button"
+                                className="krds-btn medium text"
+                              >
+                                메뉴명{" "}
+                                <i className="svg-icon ico-angle right"></i>
                               </button>
                             </div>
                           </div>
                         </li>
 
                         <li>
-                          <a href="#" className="gnb-sub-trigger is-link" data-trigger="gnb">
+                          <a
+                            href="#"
+                            className="gnb-sub-trigger is-link"
+                            data-trigger="gnb"
+                          >
                             2Depth
                           </a>
                         </li>
@@ -592,30 +836,59 @@ export function Header() {
 
                 {/* 2뎁스가 없이 3뎁스 리스트만 단일 노출하는 케이스 */}
                 <li>
-                  <button type="button" className="gnb-main-trigger" data-trigger="gnb">
+                  <button
+                    type="button"
+                    className="gnb-main-trigger"
+                    data-trigger="gnb"
+                  >
                     1Depth
                   </button>
                   <div className="gnb-toggle-wrap">
                     <div className="gnb-main-list">
                       <div className="gnb-sub-list single-list between">
                         <div className="gnb-sub-content">
-                          <h2 className="sub-title"><span>2Depth title</span></h2>
+                          <h2 className="sub-title">
+                            <span>2Depth title</span>
+                          </h2>
                           <ul>
                             {/* 마지막 단계 링크/버튼 목록 */}
-                            <li><a href="#">Last depth</a></li>
-                            <li><a href="#">Last depth</a></li>
-                            <li><a href="#">Last depth</a></li>
-                            <li><a href="#">Last depth</a></li>
-                            <li><a href="#">Last depth</a></li>
-                            <li><a href="#">Last depth</a></li>
-                            <li><a href="#">Last depth</a></li>
-                            <li><a href="#">Last depth</a></li>
-                            <li><a href="#">Last depth</a></li>
+                            <li>
+                              <a href="#">Last depth</a>
+                            </li>
+                            <li>
+                              <a href="#">Last depth</a>
+                            </li>
+                            <li>
+                              <a href="#">Last depth</a>
+                            </li>
+                            <li>
+                              <a href="#">Last depth</a>
+                            </li>
+                            <li>
+                              <a href="#">Last depth</a>
+                            </li>
+                            <li>
+                              <a href="#">Last depth</a>
+                            </li>
+                            <li>
+                              <a href="#">Last depth</a>
+                            </li>
+                            <li>
+                              <a href="#">Last depth</a>
+                            </li>
+                            <li>
+                              <a href="#">Last depth</a>
+                            </li>
                           </ul>
                         </div>
                         <div className="gnb-sub-banner">
-                          <span className="krds-badge bg-secondary">신규 서비스</span>
-                          <button type="button" className="krds-btn medium text">
+                          <span className="krds-badge bg-secondary">
+                            신규 서비스
+                          </span>
+                          <button
+                            type="button"
+                            className="krds-btn medium text"
+                          >
                             메뉴명 <i className="svg-icon ico-angle right"></i>
                           </button>
                         </div>
@@ -626,12 +899,20 @@ export function Header() {
 
                 {/* 1뎁스가 링크(anchor)인 경우(토글X) */}
                 <li>
-                  <a href="#" className="gnb-main-trigger is-link" data-trigger="gnb">
+                  <a
+                    href="#"
+                    className="gnb-main-trigger is-link"
+                    data-trigger="gnb"
+                  >
                     링크(anchor)
                   </a>
                 </li>
                 <li>
-                  <button type="button" className="gnb-main-trigger is-link" data-trigger="gnb">
+                  <button
+                    type="button"
+                    className="gnb-main-trigger is-link"
+                    data-trigger="gnb"
+                  >
                     링크(anchor)
                   </button>
                 </li>
@@ -652,8 +933,16 @@ export function Header() {
               {/* 상단 유틸 */}
               <div className="gnb-utils">
                 <ul className="utility-list">
-                  <li><button type="button" className="krds-btn xsmall text">메뉴명</button></li>
-                  <li><button type="button" className="krds-btn xsmall text">메뉴명</button></li>
+                  <li>
+                    <button type="button" className="krds-btn xsmall text">
+                      메뉴명
+                    </button>
+                  </li>
+                  <li>
+                    <button type="button" className="krds-btn xsmall text">
+                      메뉴명
+                    </button>
+                  </li>
                 </ul>
               </div>
 
@@ -669,10 +958,18 @@ export function Header() {
 
               {/* 서비스 바로가기 링크 모음 */}
               <div className="gnb-service-menu">
-                <a href="#" className="link">메뉴명</a>
-                <a href="#" className="link">메뉴명</a>
-                <a href="#" className="link">메뉴명</a>
-                <a href="#" className="link">메뉴명</a>
+                <a href="#" className="link">
+                  메뉴명
+                </a>
+                <a href="#" className="link">
+                  메뉴명
+                </a>
+                <a href="#" className="link">
+                  메뉴명
+                </a>
+                <a href="#" className="link">
+                  메뉴명
+                </a>
               </div>
 
               {/* 검색 */}
@@ -683,7 +980,10 @@ export function Header() {
                   placeholder="찾고자 하는 메뉴명을 입력해 주세요"
                   title="찾고자 하는 메뉴명 입력"
                 />
-                <button type="button" className="krds-btn medium icon ico-search">
+                <button
+                  type="button"
+                  className="krds-btn medium icon ico-search"
+                >
                   <span className="sr-only">검색</span>
                   <i className="svg-icon ico-sch"></i>
                 </button>
@@ -697,11 +997,31 @@ export function Header() {
                 <div className="menu-wrap">
                   <ul>
                     {/* 각 앵커가 우측 .submenu-wrap 내 id와 연결 */}
-                    <li><a href="#mGnb-anchor1" className="gnb-main-trigger">1Depth</a></li>
-                    <li><a href="#mGnb-anchor2" className="gnb-main-trigger">1Depth</a></li>
-                    <li><a href="#mGnb-anchor3" className="gnb-main-trigger">1Depth</a></li>
-                    <li><a href="#mGnb-anchor4" className="gnb-main-trigger">1Depth</a></li>
-                    <li><a href="#mGnb-anchor5" className="gnb-main-trigger">1Depth</a></li>
+                    <li>
+                      <a href="#mGnb-anchor1" className="gnb-main-trigger">
+                        1Depth
+                      </a>
+                    </li>
+                    <li>
+                      <a href="#mGnb-anchor2" className="gnb-main-trigger">
+                        1Depth
+                      </a>
+                    </li>
+                    <li>
+                      <a href="#mGnb-anchor3" className="gnb-main-trigger">
+                        1Depth
+                      </a>
+                    </li>
+                    <li>
+                      <a href="#mGnb-anchor4" className="gnb-main-trigger">
+                        1Depth
+                      </a>
+                    </li>
+                    <li>
+                      <a href="#mGnb-anchor5" className="gnb-main-trigger">
+                        1Depth
+                      </a>
+                    </li>
                   </ul>
                 </div>
 
@@ -711,9 +1031,21 @@ export function Header() {
                   <div className="gnb-sub-list" id="mGnb-anchor1">
                     <h2 className="sub-title">1Depth</h2>
                     <ul>
-                      <li><a href="#" className="gnb-sub-trigger">2Depth</a></li>
-                      <li><a href="#" className="gnb-sub-trigger">2Depth</a></li>
-                      <li><a href="#" className="gnb-sub-trigger">2Depth</a></li>
+                      <li>
+                        <a href="#" className="gnb-sub-trigger">
+                          2Depth
+                        </a>
+                      </li>
+                      <li>
+                        <a href="#" className="gnb-sub-trigger">
+                          2Depth
+                        </a>
+                      </li>
+                      <li>
+                        <a href="#" className="gnb-sub-trigger">
+                          2Depth
+                        </a>
+                      </li>
                     </ul>
                   </div>
 
@@ -721,9 +1053,21 @@ export function Header() {
                   <div className="gnb-sub-list" id="mGnb-anchor2">
                     <h2 className="sub-title">1Depth</h2>
                     <ul>
-                      <li><a href="#" className="gnb-sub-trigger">2Depth</a></li>
-                      <li><a href="#" className="gnb-sub-trigger">2Depth</a></li>
-                      <li><a href="#" className="gnb-sub-trigger">2Depth</a></li>
+                      <li>
+                        <a href="#" className="gnb-sub-trigger">
+                          2Depth
+                        </a>
+                      </li>
+                      <li>
+                        <a href="#" className="gnb-sub-trigger">
+                          2Depth
+                        </a>
+                      </li>
+                      <li>
+                        <a href="#" className="gnb-sub-trigger">
+                          2Depth
+                        </a>
+                      </li>
                     </ul>
                   </div>
 
@@ -732,41 +1076,77 @@ export function Header() {
                     <h2 className="sub-title">1Depth</h2>
                     <ul>
                       <li>
-                        <a href="#" className="gnb-sub-trigger has-depth3">2Depth</a>
+                        <a href="#" className="gnb-sub-trigger has-depth3">
+                          2Depth
+                        </a>
                         <div className="depth3-wrap">
                           <ul>
                             <li>
                               {/* 4뎁스가 있는 3뎁스 */}
-                              <a href="#" className="depth3-trigger has-depth4">3Depth</a>
+                              <a href="#" className="depth3-trigger has-depth4">
+                                3Depth
+                              </a>
                               <div className="depth4-wrap">
                                 <div className="depth4-head">
-                                  <button type="button" className="krds-btn icon trigger-prev">
+                                  <button
+                                    type="button"
+                                    className="krds-btn icon trigger-prev"
+                                  >
                                     <span className="sr-only">이전화면</span>
                                     <i className="svg-icon ico-angle left"></i>
                                   </button>
-                                  <button type="button" className="krds-btn icon trigger-close">
-                                    <span className="sr-only">전체메뉴 닫기</span>
+                                  <button
+                                    type="button"
+                                    className="krds-btn icon trigger-close"
+                                  >
+                                    <span className="sr-only">
+                                      전체메뉴 닫기
+                                    </span>
                                     <i className="svg-icon ico-popup-close"></i>
                                   </button>
                                 </div>
                                 <ul className="depth4-body">
                                   <h4 className="sub-title">4Depth title</h4>
                                   <ul className="depth4-ul">
-                                    <li><a href="#">depth title</a></li>
-                                    <li><a href="#">depth title</a></li>
-                                    <li><a href="#">depth title</a></li>
-                                    <li><a href="#">depth title</a></li>
+                                    <li>
+                                      <a href="#">depth title</a>
+                                    </li>
+                                    <li>
+                                      <a href="#">depth title</a>
+                                    </li>
+                                    <li>
+                                      <a href="#">depth title</a>
+                                    </li>
+                                    <li>
+                                      <a href="#">depth title</a>
+                                    </li>
                                   </ul>
                                 </ul>
                               </div>
                             </li>
-                            <li><a href="#" className="depth3-trigger">3Depth</a></li>
-                            <li><a href="#" className="depth3-trigger">3Depth</a></li>
+                            <li>
+                              <a href="#" className="depth3-trigger">
+                                3Depth
+                              </a>
+                            </li>
+                            <li>
+                              <a href="#" className="depth3-trigger">
+                                3Depth
+                              </a>
+                            </li>
                           </ul>
                         </div>
                       </li>
-                      <li><a href="#" className="gnb-sub-trigger">2Depth</a></li>
-                      <li><a href="#" className="gnb-sub-trigger">2Depth</a></li>
+                      <li>
+                        <a href="#" className="gnb-sub-trigger">
+                          2Depth
+                        </a>
+                      </li>
+                      <li>
+                        <a href="#" className="gnb-sub-trigger">
+                          2Depth
+                        </a>
+                      </li>
                     </ul>
                   </div>
 
@@ -774,9 +1154,21 @@ export function Header() {
                   <div className="gnb-sub-list" id="mGnb-anchor4">
                     <h2 className="sub-title">1Depth</h2>
                     <ul>
-                      <li><a href="#" className="gnb-sub-trigger">2Depth</a></li>
-                      <li><a href="#" className="gnb-sub-trigger">2Depth</a></li>
-                      <li><a href="#" className="gnb-sub-trigger">2Depth</a></li>
+                      <li>
+                        <a href="#" className="gnb-sub-trigger">
+                          2Depth
+                        </a>
+                      </li>
+                      <li>
+                        <a href="#" className="gnb-sub-trigger">
+                          2Depth
+                        </a>
+                      </li>
+                      <li>
+                        <a href="#" className="gnb-sub-trigger">
+                          2Depth
+                        </a>
+                      </li>
                     </ul>
                   </div>
 
@@ -784,9 +1176,21 @@ export function Header() {
                   <div className="gnb-sub-list" id="mGnb-anchor5">
                     <h2 className="sub-title">1Depth</h2>
                     <ul>
-                      <li><a href="#" className="gnb-sub-trigger">2Depth</a></li>
-                      <li><a href="#" className="gnb-sub-trigger">2Depth</a></li>
-                      <li><a href="#" className="gnb-sub-trigger">2Depth</a></li>
+                      <li>
+                        <a href="#" className="gnb-sub-trigger">
+                          2Depth
+                        </a>
+                      </li>
+                      <li>
+                        <a href="#" className="gnb-sub-trigger">
+                          2Depth
+                        </a>
+                      </li>
+                      <li>
+                        <a href="#" className="gnb-sub-trigger">
+                          2Depth
+                        </a>
+                      </li>
                     </ul>
                   </div>
                 </div>
@@ -797,14 +1201,24 @@ export function Header() {
                 <a href="#" className="krds-btn medium text">
                   메뉴명 <i className="svg-icon ico-angle right"></i>
                 </a>
-                <a href="#" className="krds-btn medium text" target="_blank" title="새 창 열기">
-                  {" "}메뉴명 <i className="svg-icon ico-go"></i>
+                <a
+                  href="#"
+                  className="krds-btn medium text"
+                  target="_blank"
+                  title="새 창 열기"
+                >
+                  {" "}
+                  메뉴명 <i className="svg-icon ico-go"></i>
                 </a>
               </div>
             </div>
 
             {/* 모바일 닫기 버튼 */}
-            <button type="button" className="krds-btn medium icon" id="close-nav">
+            <button
+              type="button"
+              className="krds-btn medium icon"
+              id="close-nav"
+            >
               <span className="sr-only">전체메뉴 닫기</span>
               <i className="svg-icon ico-popup-close"></i>
             </button>
