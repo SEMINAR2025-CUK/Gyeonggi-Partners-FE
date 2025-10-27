@@ -2,33 +2,83 @@ import { useState } from "react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
+import {
+  Card, CardContent, CardDescription, CardHeader, CardTitle,
+} from "./ui/card";
 import { Checkbox } from "./ui/checkbox";
 import { Separator } from "./ui/separator";
 import { Eye, EyeOff, Shield, AlertCircle } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom"; // ✅ 추가
+
+// .env에 VITE_API_BASE_URL이 있으면 사용, 없으면 EC2 기본값
+const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "http://3.39.207.166:8080";
 
 interface LoginFormProps {
   onSwitchToRegister: () => void;
-  onLoginSuccess: () => void;
+  onLoginSuccess?: () => void; //  선택값으로 변경 로그인 동작 성공시 넘겨줌 (없어도 동작)
 }
 
-export function LoginForm({ onSwitchToRegister, onLoginSuccess }: LoginFormProps) {
-  const [showPassword, setShowPassword] = useState(false);
-  const [formData, setFormData] = useState({
-    username: "",
-    password: "",
-    rememberMe: false
-  });
+export function LoginForm({  onLoginSuccess }: LoginFormProps) {//LoginFormProps 타입을 따르는 props를 받음
+  const navigate = useNavigate(); 
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // 실제 로그인 로직 구현 시 이 부분을 대체
-    console.log("로그인 시도:", formData);
-    onLoginSuccess();
+  const [showPassword, setShowPassword] = useState(false); //비밀번호 보이게
+  const [formData, setFormData] = useState({
+    loginId: "",
+    password: "",
+    rememberMe: false,
+  });
+  const [loading, setLoading] = useState(false);
+  const [msg, setMsg] = useState<string | null>(null);
+
+  const handleChange = (field: string, value: string | boolean) => {//폼 여러 필드 값 업데이트
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleChange = (field: string, value: string | boolean) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+  const handleSubmit = async (e: React.FormEvent) => {//제출용 핸들러
+    e.preventDefault();
+    setMsg(null);
+
+    if (!formData.loginId.trim() || !formData.password.trim()) {
+      setMsg("아이디와 비밀번호를 입력해 주세요.");
+      return;
+    }
+
+    setLoading(true); //로그인 api 호출
+    try {
+      const res = await fetch(`${API_BASE}/api/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          loginId: formData.loginId,
+          password: formData.password,
+        }),
+      });
+
+      const text = await res.text().catch(() => "");
+      let data: any = null;
+      //안전한 파싱을 위에서 텍스트로 받고, 이후 가능하면 json 변환
+      try { data = text ? JSON.parse(text) : null; } catch {}
+
+      if (!res.ok) {
+        setMsg((data && (data.message || data.error || data.msg)) || `로그인 실패 (${res.status})`);
+        return;
+      }
+
+      // JWT 토큰 케이스 저장(있을 때만)
+      const accessToken = data?.accessToken || data?.token || data?.jwt || null;
+      if (accessToken) {
+        const storage = formData.rememberMe ? localStorage : sessionStorage;
+        storage.setItem("accessToken", accessToken);
+      }
+
+      setMsg("로그인 성공!");
+      if (typeof onLoginSuccess === "function") onLoginSuccess(); // (옵션) 부모 콜백
+      navigate("/", { replace: true }); //  여기서 바로 홈으로 이동
+    } catch (err) {
+      setMsg("네트워크 오류가 발생했습니다.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -42,22 +92,22 @@ export function LoginForm({ onSwitchToRegister, onLoginSuccess }: LoginFormProps
           시민과 지역이 함께하는 협력적 거버넌스 플랫폼
         </CardDescription>
       </CardHeader>
-      
+
       <CardContent className="space-y-6">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="username">아이디</Label>
+            <Label htmlFor="loginId">아이디</Label>
             <Input
-              id="username"
+              id="loginId"
               type="text"
               placeholder="아이디를 입력하세요"
-              value={formData.username}
-              onChange={(e) => handleChange("username", e.target.value)}
+              value={formData.loginId}
+              onChange={(e) => handleChange("loginId", e.target.value)}
               className="h-12"
               required
             />
           </div>
-          
+
           <div className="space-y-2">
             <Label htmlFor="password">비밀번호</Label>
             <div className="relative">
@@ -79,13 +129,13 @@ export function LoginForm({ onSwitchToRegister, onLoginSuccess }: LoginFormProps
               </button>
             </div>
           </div>
-          
+
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <Checkbox
                 id="remember"
                 checked={formData.rememberMe}
-                onCheckedChange={(checked) => handleChange("rememberMe", checked as boolean)}
+                onCheckedChange={(checked) => handleChange("rememberMe", checked === true)}
               />
               <Label htmlFor="remember" className="text-sm text-gray-600">
                 로그인 상태 유지
@@ -95,29 +145,30 @@ export function LoginForm({ onSwitchToRegister, onLoginSuccess }: LoginFormProps
               비밀번호 찾기
             </button>
           </div>
-          
-          <Button type="submit" className="w-full h-12 bg-blue-600 hover:bg-blue-700">
-            로그인
+
+          <Button type="submit" className="w-full h-12 bg-blue-600 hover:bg-blue-700" disabled={loading}>
+            {loading ? "로그인 중..." : "로그인"}
           </Button>
         </form>
-        
+
+        {msg && (
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm text-blue-800">
+            {msg}
+          </div>
+        )}
+
         <div className="relative">
           <Separator />
           <div className="absolute inset-0 flex items-center justify-center">
             <span className="bg-white px-4 text-sm text-gray-500">또는</span>
           </div>
         </div>
-        
+
         <div className="space-y-3">
-          <Button 
-            type="button" 
-            variant="outline" 
-            className="w-full h-12"
-            onClick={onSwitchToRegister}
-          >
-            회원가입
+          <Button asChild variant="outline" className="w-full h-12">
+            <Link to="/signup">회원가입</Link>
           </Button>
-          
+
           <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
             <div className="flex items-start space-x-2">
               <AlertCircle className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
@@ -126,18 +177,11 @@ export function LoginForm({ onSwitchToRegister, onLoginSuccess }: LoginFormProps
                 <ul className="text-xs space-y-1 list-disc list-inside">
                   <li>공공장소에서는 로그인 후 반드시 로그아웃하세요</li>
                   <li>비밀번호는 정기적으로 변경해주세요</li>
-                  <li>개인정보 보호를 위해 브라우저 종료 시 자동 로그아웃됩니다</li>
+                  <li>브라우저 종료 시 자동 로그아웃될 수 있습니다</li>
                 </ul>
               </div>
             </div>
           </div>
-        </div>
-        
-        <div className="text-center space-y-2">
-          <p className="text-xs text-gray-500">
-            회원가입 시 <button className="text-blue-600 hover:underline">이용약관</button> 및{" "}
-            <button className="text-blue-600 hover:underline">개인정보처리방침</button>에 동의한 것으로 간주됩니다.
-          </p>
         </div>
       </CardContent>
     </Card>

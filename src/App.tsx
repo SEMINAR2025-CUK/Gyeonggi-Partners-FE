@@ -11,12 +11,16 @@ import { OngoingProposalsPage } from "./components/OngoingProposalsPage";
 import { CompletedProjectsPage } from "./components/CompletedProjectsPage";
 import { DiscussionRoomDetail } from "./components/DiscussionRoomDetail";
 import { PageType } from "./types/types.ts";
+
+import SignupForm from "./components/SignUpForm.tsx"; //회원가입 엔드포인트 확인용
 // import { Button } from '@krds-ui/core'
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState<PageType>("main");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [selectedDiscussionId, setSelectedDiscussionId] = useState<string | null>(null);
+  const [selectedDiscussionId, setSelectedDiscussionId] = useState<
+    string | null
+  >(null);
 
   console.log(selectedDiscussionId); // 임시 (추후 삭제 예정)
 
@@ -42,7 +46,7 @@ export default function App() {
   if (currentPage === "login") {
     return (
       <AuthLayout>
-        <LoginForm 
+        <LoginForm
           onSwitchToRegister={() => setCurrentPage("register")}
           onLoginSuccess={handleLogin}
         />
@@ -53,7 +57,7 @@ export default function App() {
   if (currentPage === "register") {
     return (
       <AuthLayout>
-        <RegisterForm 
+        <RegisterForm
           onSwitchToLogin={() => setCurrentPage("login")}
           onRegisterSuccess={handleRegisterSuccess}
         />
@@ -65,7 +69,7 @@ export default function App() {
   if (currentPage === "discussionDetail") {
     return (
       <div className="min-h-screen bg-gray-50">
-        <Header 
+        <Header
           isLoggedIn={isLoggedIn}
           onLoginClick={() => setCurrentPage("login")}
           onLogoutClick={handleLogout}
@@ -82,7 +86,7 @@ export default function App() {
   if (currentPage === "discussions") {
     return (
       <div className="min-h-screen bg-gray-50">
-        <Header 
+        <Header
           isLoggedIn={isLoggedIn}
           onLoginClick={() => setCurrentPage("login")}
           onLogoutClick={handleLogout}
@@ -99,7 +103,7 @@ export default function App() {
   if (currentPage === "proposals") {
     return (
       <div className="min-h-screen bg-gray-50">
-        <Header 
+        <Header
           isLoggedIn={isLoggedIn}
           onLoginClick={() => setCurrentPage("login")}
           onLogoutClick={handleLogout}
@@ -116,7 +120,7 @@ export default function App() {
   if (currentPage === "completed") {
     return (
       <div className="min-h-screen bg-gray-50">
-        <Header 
+        <Header
           isLoggedIn={isLoggedIn}
           onLoginClick={() => setCurrentPage("login")}
           onLogoutClick={handleLogout}
@@ -132,15 +136,17 @@ export default function App() {
   // 메인 페이지
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header 
+      <Header
         isLoggedIn={isLoggedIn}
         onLoginClick={() => setCurrentPage("login")}
         onLogoutClick={handleLogout}
         onNavigate={setCurrentPage}
         currentPage={currentPage}
       />
+
       <main>
         <MainBanner />
+        <SignupForm />
         <SolutionRoomList onRoomClick={handleDiscussionClick} />
       </main>
       <Footer />
